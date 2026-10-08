@@ -1,0 +1,185 @@
+Future Costing SPARQL 
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?p (COUNT(?p) AS ?count)
+	FROM <future_costing_kg>
+	WHERE {
+		?s ?p ?o .
+	}
+	GROUP BY ?p ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <future_costing_kg>
+	WHERE {
+		?s <http://kg.demo.sap.com/isValidFor> ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+	PREFIX demo: <http://kg.demo.sap.com/>
+	PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	SELECT ?material ?ValuationType
+	FROM <future_costing_kg>
+	WHERE {
+		?material rdfs:type demo:Material.
+		?UniqueID demo:has ?material;
+			demo:contains ?ValuationType.
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+	PREFIX demo: <http://kg.demo.sap.com/>
+	PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	PREFIX rdf: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?materialdescription ?ValuationType ?Period
+	FROM <future_costing_kg>
+	WHERE {
+		?material rdfs:type demo:Material;
+			rdf:label ?materialdescription.
+		?UniqueID demo:has ?material;
+			demo:contains ?ValuationType.
+		?UniqueID demo:isValidFor ?Period.
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	SELECT ?material ?UniqueID ?ValuationType
+	FROM <future_costing_kg>
+	WHERE {
+		?UniqueID rdf:type demo:UniqueID;
+				demo:has ?material;
+				demo:contains ?ValuationType.
+	}
+	ORDER BY ?material ?UniqueID ?ValuationType
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?material_name ?UniqueID ?ValuationType
+	FROM <future_costing_kg>
+	WHERE {
+		?UniqueID rdf:type demo:UniqueID;
+				demo:has ?material;
+				demo:contains ?ValuationType.
+		?material rdfs:label ?material_name. 
+	}
+	ORDER BY ?material ?UniqueID ?ValuationType
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?material_name ?ValuationType ?Period
+	FROM <future_costing_kg>
+	WHERE {
+		?UniqueID rdf:type demo:UniqueID;
+				demo:has ?material;
+				demo:contains ?ValuationType.
+		?UniqueID demo:isAvailableFor ?Period.
+		?material rdfs:label ?material_name. 
+		FILTER regex(STR(?Period), "20256","i") .
+	}
+	ORDER BY ?material ?UniqueID ?ValuationType
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?BOM ?Components ?AltBOM ?Quantity
+	FROM <future_costing_kg>
+	WHERE {
+		?material demo:hasBOM ?BOM.
+		?BOM demo:hasComponent ?Components;
+			demo:hasAlternateBOM ?AltBOM.
+		?AltBOM demo:hasQuantity ?Quantity.
+		FILTER regex(STR(?material), "FGML-002","i") .
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?BOM ?Components ?AltBOM ?Quantity ?material_name ?ValuationType
+	FROM <future_costing_kg>
+	WHERE {
+		?UniqueID rdf:type demo:UniqueID;
+				demo:has ?material;
+				demo:contains ?ValuationType.
+		?material rdfs:label ?material_name.
+		?UniqueID demo:isAvailableFor ?Period.
+		?material demo:hasBOM ?BOM.
+		?BOM demo:hasComponent ?Components;
+			demo:hasAlternateBOM ?AltBOM.
+		?AltBOM demo:hasQuantity ?Quantity.
+		FILTER regex(STR(?material), "FGML-002","i") .
+		FILTER regex(STR(?Period), "20256","i") .
+	}
+');
+
+
+-----------------------------------------------------------
+
+AltBOM SPARQL
+
+
+SELECT * FROM SPARQL_TABLE('
+	PREFIX demo: <http://kg.demo.sap.com/>
+	PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	SELECT ?material ?UniqueID ?ValuationType
+	FROM <AltBOM>
+	WHERE {
+		?material rdfs:type demo:Material.
+		?UniqueID demo:has ?material;
+			demo:contains ?ValuationType.
+	}
+');
+
+----------------------------------------------------------------------------------------
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+	SELECT ?material ?BOM ?Components ?Correlation ?Plant ?AlternateBOM (SUM(xsd:decimal(?quantityValue)) AS ?totalQuantity)
+	FROM <AltBOM>
+	WHERE {
+		?material demo:hasBOM ?BOM.
+		?BOM demo:hasComponent ?Components.
+		?Components	demo:isappendedto ?Correlation.
+		?Correlation demo:isValidFor ?Plant.
+		?Correlation demo:hasAlternateBOM ?AlternateBOM.
+		?Correlation demo:hasAlternateBOMQuantity ?quantityNode .
+				?quantityNode a demo:Quantity ;
+                demo:numericValue ?quantityValue .
+		FILTER regex(STR(?material), "FG_0024","i") .
+	}
+	Group by ?material ?BOM ?Components ?Correlation ?Plant ?AlternateBOM
+');
+
+----------------------------------------------------------------------------------------
+
+SELECT * FROM SPARQL_TABLE('
+	PREFIX demo: <http://kg.demo.sap.com/>
+	PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	PREFIX rdf: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?material ?materialdescription ?UniqueID ?ValuationType
+	FROM <AltBOM>
+	WHERE {
+		?material rdfs:type demo:Material;
+		rdf:label ?materialdescription.
+		?UniqueID demo:has ?material;
+			demo:contains ?ValuationType.
+	}
+');
+
+----------------------------------------------------------------------------------------
+

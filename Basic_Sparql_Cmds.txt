@@ -1,0 +1,295 @@
+Get a list of the classes (entity types) used in the named graph kgdocu_movies
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <kgdocu_movies>
+	WHERE {
+		?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s <http://kg.demo.sap.com/type> ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+
+Use namespace prefixes for the URIs
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <kgdocu_movies>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+Use "a" for type predicate
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <kgdocu_movies>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+Get a list of the predicates
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?p (COUNT(?p) AS ?count)
+	FROM <kgdocu_movies>
+	WHERE {
+		?s ?p ?o .
+	}
+	GROUP BY ?p ORDER BY DESC(?count)
+');
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?p (COUNT(?p) AS ?count)
+	FROM <book>
+	WHERE {
+		?s ?p ?o .
+	}
+	GROUP BY ?p ORDER BY DESC(?count)
+');
+
+Get movies (entity IDs) and their titles
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?movie ?movie_title
+	FROM <kgdocu_movies>
+	WHERE {
+		?movie a demo:Film .
+		?movie demo:title ?movie_title .
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?book_title
+	FROM <book>
+	WHERE {
+		?book a demo:Book .
+		?book demo:title ?book_title .
+	}
+');
+
+Get movies (entity IDs) and their titles, but omits the repetitive subject
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?movie ?movie_title
+	FROM <kgdocu_movies>
+	WHERE {
+		?movie a demo:Film ;
+			demo:title ?movie_title .
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?author ?author_name
+	FROM <book>
+	WHERE {
+		?author a demo:Author ;
+			demo:name ?author_name .
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?author ?author_name
+	FROM <book>
+	WHERE {
+		?author a demo:Author .
+		?author demo:name ?author_name .
+	}
+');
+
+Get all triples where "The Matrix" is the subject
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?movie ?p ?o
+	FROM <kgdocu_movies>
+	WHERE {
+	  ?movie a demo:Film ;
+	  	demo:title "The Matrix" ;
+	  	?p ?o .
+	}
+	ORDER BY DESC(?p)
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?p ?o
+	FROM <book>
+	WHERE {
+	  ?book a demo:Book ;
+	  	demo:title "Fundamentals of Wavelets" ;
+	  	?p ?o .
+	}
+	ORDER BY DESC(?p)
+');
+
+Get triples where object name or object label, if available
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?movie ?p ?o ?label
+	FROM <kgdocu_movies>
+	WHERE {
+		?movie a demo:Film ;
+			demo:title ?movie_title ;
+	  		?p ?o.
+		OPTIONAL{?o rdfs:label|demo:name ?label .}
+		FILTER(?movie_title = "The Matrix")
+	}
+	ORDER BY DESC(?p)
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?book ?p ?o ?label
+	FROM <book>
+	WHERE {
+		?book a demo:Book ;
+			demo:title ?book_title ;
+	  		?p ?o.
+		OPTIONAL{?o rdfs:label|demo:name ?label .}
+		FILTER(?label = "fiction")
+	}
+	ORDER BY DESC(?p)
+');
+
+Find movies with the term "matrix" in the title, using a regular (function regex())
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?movie ?movie_title
+	FROM <kgdocu_movies>
+	WHERE {
+		?movie a demo:Film ;
+			demo:title ?movie_title .
+		FILTER regex(STR(?movie_title), "matrix","i") . 
+	}
+	LIMIT 10
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?book_title
+	FROM <book>
+	WHERE {
+		?book a demo:Book ;
+			demo:title ?book_title .
+		FILTER regex(STR(?book_title), "Data","i") . 
+	}
+	LIMIT 10
+');
+
+Get actors acting in the movie "The Matrix"
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?movie ?actor ?actorLabel
+	FROM <kgdocu_movies>
+	WHERE {
+		?movie a demo:Film ;
+	  		demo:title "The Matrix" .
+		?actor demo:acted_in ?movie ;
+	  		rdfs:label ?actorLabel .
+	}
+');
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ 
+SELECT ?author ?book_title
+FROM <book>
+WHERE {
+  ?author rdfs:label "Rutherford, Alex" .
+  ?book demo:writtenBy ?author ;
+        demo:title ?book_title .
+}
+');
+
+
+Data Understanding
+
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ 
+SELECT ?book ?book_title ?author ?author_name ?publisher ?publisher_name ?genre_name
+FROM <book>
+WHERE {
+	?author demo:penned ?book;
+		rdfs:label ?author_name.
+	?book a demo:Book;
+		demo:title ?book_title.
+	?publisher demo:published ?book;
+		rdfs:label ?publisher_name.
+	?genre demo:xyz ?book;
+		rdfs:label ?genre_name.
+	FILTER(STR(?publisher_name) = "Random House").
+	FILTER(STR(?genre_name) = "history").
+}');
+
+
+Concatenation 
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ 
+SELECT ?author ?author_name (GROUP_CONCAT(DISTINCT STR(?genre_name); separator="; ") as ?genre)
+FROM <book>
+WHERE {
+	?author demo:penned ?book;
+		rdfs:label ?author_name.
+	?genre demo:xyz ?book;
+		rdfs:label ?genre_name.
+}
+GROUP BY ?author ?author_name
+');
+

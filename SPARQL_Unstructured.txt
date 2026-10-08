@@ -1,0 +1,205 @@
+1] Delete content from DEFAULT graph 
+CALL SPARQL_EXECUTE(
+    'CLEAR DEFAULT',
+    'Content-Type: application/sparql-update',
+    ?,
+    ?
+);
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+2] Query to display values where subject has string "http://www.example.com/"
+SELECT * FROM SPARQL_TABLE('
+SELECT ?s ?p ?o
+FROM DEFAULT
+WHERE {
+    ?s ?p ?o .    
+    FILTER(
+        REGEX(str(?s), "http://www.example.com/")
+    )
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+3] Get a list of the predicates
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?p (COUNT(?p) AS ?count)
+	FROM DEFAULT
+	WHERE {
+		?s ?p ?o .
+	}
+	GROUP BY ?p ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+4] Get a list of the classes (entity types) used in the named graph 
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM DEFAULT
+	WHERE {
+		?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+5] Use namespace prefixes for the URIs
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM DEFAULT
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+6] Use "a" for type predicate
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM DEFAULT
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+7] Find the total triples inserted into the graph 
+SELECT * FROM SPARQL_TABLE('
+	SELECT (count(*) as ?totalTriples)
+	FROM DEFAULT
+	WHERE {
+		?s ?p ?o.
+	}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+8] Get all names associated with a particular provider - Google provider
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service ?name
+FROM DEFAULT
+WHERE {
+  ?service rdf:cloudProvider "Google Cloud";
+  rdf:name ?name .
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+9] Find a specific service - "SAP BTP, Cloud Foundry Runtime"
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service 
+FROM DEFAULT
+WHERE {
+  ?service rdf:name "SAP BTP, Cloud Foundry Runtime".
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+10] Find the price of services in EUR for service - Microsoft Azure
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service ?price
+FROM DEFAULT
+WHERE {
+  ?service rdf:cloudProvider "Microsoft Azure";
+  rdf:price ?price .
+  FILTER(CONTAINS(?price, "EUR"))
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+11] Get all cloud providers associated with a specific service - SAP Mobile Services
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?name ?cloudProvider
+FROM DEFAULT
+WHERE {
+  ?service rdf:name ?name;
+  rdf:cloudProvider ?cloudProvider.
+  FILTER regex(STR(?name), "SAP Mobile Services","i") . 
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+12] Get all services with their associated price per month
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service ?pricePerMonth
+FROM DEFAULT
+WHERE {
+  ?service rdf:price_per_month ?pricePerMonth.
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+13] Find services that are retired
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service ?retirementStatus
+FROM DEFAULT
+WHERE {
+  ?service rdf:IsRetired ?retirementStatus.
+  FILTER(?retirementStatus != "" )
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+14] Get all services available in a specific region with their pricing and locations
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.example.com/>
+SELECT ?service ?price ?location
+FROM DEFAULT
+WHERE {
+  ?service rdf:locations ?location .
+  ?service rdf:price ?price .
+  FILTER(CONTAINS(?location, "Australia (Sydney)"))
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+15] To return only services that are of type Service or Region
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.example.com/>
+SELECT ?service ?type ?name
+WHERE {
+  ?service rdf:type ?type .
+  ?service rdfs:name ?name .
+  FILTER(?type IN (<http://www.example.com/Service>, <http://www.example.com/Region>))
+}
+');
+
+
+16] Provide services AWS Europe (Frankfurt) with its associated provider Google Cloud or Microsoft Azure
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.example.com/>
+
+SELECT ?service ?serviceName ?provider ?location 
+WHERE {
+  ?service rdf:type rdfs:Service .
+  ?service rdfs:name ?serviceName .
+  ?service rdfs:provider ?provider .
+  ?service rdfs:locations ?location.
+  FILTER(?serviceName IN ("AWS Europe (Frankfurt)"))
+  FILTER(?provider IN ("Google Cloud", "Microsoft Azure"))
+}
+');

@@ -1,0 +1,204 @@
+Agentic SAP HANA Cloud
+
+Agentic Database Vision: HANA Cloud evolves into an agent-driven platform, not just a database.
+
+Built-in Agents:
+
+Discovery Agent – finds the right data and artifacts using natural language.
+
+Data Agent – executes queries, functions, and predictions directly on data.
+
+Admin Agent – holistic DBA support (performance, cost, scalability, reliability).
+
+Customer-Owned Knowledge Graph:
+
+Automatically built from schemas, models, lineage, and relationships.
+
+Grounds agents with business context and metadata.
+
+Natural Language Interaction:
+
+Ask business or technical questions without exposing artifacts manually.
+
+Developers become “AI developers” without writing AI code.
+
+End-to-End Orchestration:
+
+Agents collaborate (discover → analyze → optimize → execute).
+
+Context-aware, explainable, and reversible actions.
+
+Agent Memory (Roadmap):
+
+Conversations stored in HANA Cloud.
+
+Enables hyper-personalized, context-aware assistance (planned 2026).
+
+MCP (Model Context Protocol) for HANA Cloud
+
+Open Agent Integration:
+
+Exposes HANA Cloud agents via MCP.
+
+Reuse HANA Agents Anywhere:
+
+Consume HANA Cloud agents in:
+
+Custom copilots
+
+Code-based agents
+
+Business applications
+
+Database as AI Backend:
+
+MCP lets external agents leverage:
+
+Knowledge graph
+
+Discovery logic
+
+Query execution
+
+Optimization intelligence
+
+No Reinvention Needed:
+
+Use HANA Cloud’s out-of-the-box AI capabilities instead of rebuilding logic.
+
+Enterprise-Grade Grounding:
+
+Secure, governed, SAP-context-aware agent execution.
+
+Agentic Database Vision
+HANA Cloud evolves from a database to an agent-driven platform that actively assists developers, admins, and users.
+
+Built-in HANA Cloud Agents
+
+Discovery Agent – Finds the right data, artifacts, and semantics.
+
+Data/Execution Agent – Runs queries, ML, and analytics automatically.
+
+Admin Agent – Supports operations (performance, partitioning, cost, scaling).
+
+Customer-Owned Knowledge Graph
+
+Automatically built from metadata, schemas, lineage, and relationships.
+
+Grounds agents with business context and data understanding.
+
+Natural Language Interaction
+
+Work with HANA Cloud using conversational input (no deep engine knowledge required).
+
+Example: GenAI Toolkit for in-database ML is already an agent.
+
+Agentic Memory (Roadmap)
+
+Stores and consolidates user conversations and preferences in HANA Cloud.
+
+Enables personalized, context-aware, continuous interactions.
+
+Explainable & Governed
+
+Agent actions are transparent, reversible, and enterprise-grade.
+
+MCP (Model Context Protocol) for HANA Cloud – Key Pointers
+
+Open Agent Access
+
+HANA Cloud agents are exposed via MCP (industry-standard protocol).
+
+Reuse HANA Agents Anywhere
+
+Consume HANA Cloud agents in:
+
+Custom copilots
+
+External AI agents
+
+Non-SAP applications
+
+Database as AI Backend
+
+External agents can leverage:
+
+Knowledge graph
+
+Discovery logic
+
+Query execution
+
+Optimization intelligence
+
+No Reinvention
+
+Use SAP-provided agents instead of rebuilding data discovery or reasoning logic.
+
+Enterprise-Grade AI Integration
+
+Secure, governed, SAP-context-aware agent execution via MCP.
+
+Agentic SAP HANA Cloud – Short & Important Pointers
+
+Database becomes agentic
+SAP HANA Cloud is evolving from a passive database to an agent-driven AI platform.
+
+AI runs where data lives
+AI workloads (GenAI, ML, analytics) execute inside HANA Cloud, close to business data for performance and simplicity.
+
+Built-in Agents (Vision)
+
+Discovery Agent – Understands schemas, data, and metadata
+
+Data / Execution Agent – Runs queries, ML, GenAI tasks
+
+Admin Agent – Supports operations, performance, tuning, troubleshooting
+
+Knowledge-driven
+Agents are grounded using:
+
+Metadata
+
+Lineage
+
+Semantic models
+
+Knowledge Graph (facts as subject–predicate–object)
+
+Natural language interaction
+Users can ask business or technical questions without deep SQL or ML expertise.
+
+Explainable & governed
+Agent actions are transparent, controllable, and enterprise-grade.
+
+MCP (Model Context Protocol) for HANA Cloud – Short & Important Pointers
+
+Open protocol for agents
+MCP exposes HANA Cloud capabilities to external AI agents.
+
+Reuse HANA intelligence anywhere
+HANA Cloud agents can be consumed by:
+
+Custom copilots
+
+External AI frameworks
+
+Non-SAP applications
+
+Database as AI backend
+External agents can leverage:
+
+Knowledge Graph
+
+Data discovery
+
+Query execution
+
+Optimization intelligence
+
+No duplication of logic
+Avoid rebuilding discovery, grounding, or execution logic outside HANA.
+
+Enterprise grounding
+Secure, governed, SAP-context-aware AI via MCP.

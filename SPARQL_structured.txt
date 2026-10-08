@@ -1,0 +1,173 @@
+To check the count of triples in a graph
+SELECT * FROM SPARQL_TABLE('
+SELECT (COUNT(*) AS ?triplesCount)
+FROM <future_costing_kg>
+WHERE {
+  ?s ?p ?o .
+}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+To drop a graph 
+CALL SPARQL_EXECUTE('
+DROP GRAPH <future_costing_kg>
+', '', ?, ?);
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+1] Get a list of the classes (entity types) used in the named graph 
+
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+2] Use namespace prefixes for the URIs
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+3] Use "a" for type predicate
+SELECT * FROM SPARQL_TABLE('
+PREFIX rdf: <http://kg.demo.sap.com/>
+	SELECT ?class (COUNT(?class) AS ?count)
+	FROM <book>
+	WHERE {
+		?s a ?class .
+	}
+	GROUP BY ?class ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+4] Get a list of the predicates
+SELECT * FROM SPARQL_TABLE('
+	SELECT ?p (COUNT(?p) AS ?count)
+	FROM <book>
+	WHERE {
+		?s ?p ?o .
+	}
+	GROUP BY ?p ORDER BY DESC(?count)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+5] Get books (entity IDs) and their titles
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?book_title
+	FROM <book>
+	WHERE {
+		?book a demo:Book .
+		?book demo:title ?book_title .
+	}
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+6] Get authors (entity IDs) and their names, but omits the repetitive subject
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdf: <http://www.w3.org/2000/01/rdf-schema#>
+	SELECT ?author ?author_name
+	FROM <book>
+	WHERE {
+		?author a demo:Author;
+		rdf:label ?author_name .
+	}
+');	
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+7] Get all triples where "Fundamentals of Wavelets" is the subject
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?p ?o
+	FROM <book>
+	WHERE {
+	  ?book a demo:Book ;
+	  	demo:title "Fundamentals of Wavelets" ;
+	  	?p ?o .
+	}
+	ORDER BY DESC(?p)
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+8] Get triples where object name or object label, if available
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+9] Find books with the term "Data" in the title, using a regular (function regex())
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+	SELECT ?book ?book_title
+	FROM <book>
+	WHERE {
+		?book a demo:Book ;
+			demo:title ?book_title .
+		FILTER regex(STR(?book_title), "Data","i") . 
+	}
+	LIMIT 10
+');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+10] Get actors acting in the movie "The Matrix"
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+11] Data Understanding
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ 
+SELECT ?book ?book_title ?author ?author_name ?publisher ?publisher_name ?genre_name
+FROM <book>
+WHERE {
+	?author demo:penned ?book;
+		rdfs:label ?author_name.
+	?book a demo:Book;
+		demo:title ?book_title.
+	?publisher demo:published ?book;
+		rdfs:label ?publisher_name.
+	?genre demo:xyz ?book;
+		rdfs:label ?genre_name.
+	FILTER(STR(?publisher_name) = "Random House").
+	FILTER(STR(?genre_name) = "history").
+}');
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+12] Concatenation 
+SELECT * FROM SPARQL_TABLE('
+PREFIX demo: <http://kg.demo.sap.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ 
+SELECT ?author ?author_name (GROUP_CONCAT(DISTINCT STR(?genre_name); separator="; ") as ?genre)
+FROM <book>
+WHERE {
+	?author demo:penned ?book;
+		rdfs:label ?author_name.
+	?genre demo:xyz ?book;
+		rdfs:label ?genre_name.
+}
+GROUP BY ?author ?author_name
+');

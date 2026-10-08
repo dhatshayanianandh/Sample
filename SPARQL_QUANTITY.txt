@@ -1,0 +1,87 @@
+
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX kg: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?componentRelation ?quantityValue
+WHERE {
+  ?componentRelation kg:hasAlternateBOMQuantity ?quantityNode .
+
+  ?quantityNode a kg:Quantity ;
+                kg:numericValue ?quantityValue .
+}
+')
+
+-----------------
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX kg: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT (SUM(xsd:decimal(?quantityValue)) AS ?totalQuantity)
+WHERE {
+  ?componentRelation kg:hasAlternateBOMQuantity ?quantityNode .
+  ?quantityNode a kg:Quantity ;
+                kg:numericValue ?quantityValue .
+}
+')
+
+---------------
+
+Sum by altbom
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX kg: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?altBOM (SUM(xsd:decimal(?value)) AS ?totalQuantity)
+FROM <Quantity>
+WHERE {
+  ?componentRelation kg:hasAlternateBOM ?altBOM ;
+                     kg:hasAlternateBOMQuantity ?quantity .
+  
+  ?quantity a kg:Quantity ;
+            kg:numericValue ?value .
+}
+GROUP BY ?altBOM
+')
+
+---------------------
+
+sum without group BY
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX kg: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT (SUM(xsd:decimal(?value)) AS ?totalQuantity)
+FROM <Quantity>
+WHERE {
+  ?material kg:hasBOM ?bom .
+  ?bom kg:hasComponent ?component .
+  
+  ?component kg:isappendedto ?componentRelation .
+  ?componentRelation kg:hasAlternateBOMQuantity ?quantity .
+  
+  ?quantity a kg:Quantity ;
+            kg:numericValue ?value .
+}
+')
+
+-------------
+
+quantity by material 
+
+SELECT * FROM SPARQL_TABLE('
+PREFIX kg: <http://kg.demo.sap.com/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?material (SUM(xsd:decimal(?quantityValue)) AS ?totalQuantity)
+FROM <Quantity>
+WHERE {
+  ?material kg:hasBOM ?bom .
+  ?bom kg:hasComponent ?component .
+  ?component kg:isappendedto ?componentRelation .
+  ?componentRelation kg:hasAlternateBOMQuantity ?quantityNode .
+  ?quantityNode a kg:Quantity ;
+                kg:numericValue ?quantityValue .
+}
+GROUP BY ?material
+')
